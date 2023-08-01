@@ -216,20 +216,30 @@ return {
         end
     },
     {
-        "echasnovski/mini.surround",
+        "kylechui/nvim-surround",
+        version = "*", -- Use for stability; omit to use `main` branch for the latest features
         event = "VeryLazy",
-        version = false,
         config = function()
-            require("mini.surround").setup()
+            require("nvim-surround").setup({
+                -- Configuration here, or leave empty to use defaults
+            })
         end
-    },
-    {
-        "echasnovski/mini.ai",
-        event = "VeryLazy",
-        version = false,
-        config = function()
-            require("mini.ai").setup()
-        end
-    },
+    }
+    -- {
+    --     "echasnovski/mini.surround",
+    --     event = "VeryLazy",
+    --     version = false,
+    --     config = function()
+    --         require("mini.surround").setup()
+    --     end
+    -- },
+    -- {
+    --     "echasnovski/mini.ai",
+    --     event = "VeryLazy",
+    --     version = false,
+    --     config = function()
+    --         require("mini.ai").setup()
+    --     end
+    -- },
 
 }
