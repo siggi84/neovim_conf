@@ -2,7 +2,7 @@ return { {
     "jackMort/ChatGPT.nvim",
     event = "VeryLazy",
     config = function()
-        require("chatgpt").setup()
+        require("chatgpt").setup( { actions_paths = {"~/.config/nvim/custom_actions.json",}})
     end,
     dependencies = {
         "MunifTanjim/nui.nvim",
