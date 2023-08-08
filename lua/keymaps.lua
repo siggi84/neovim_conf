@@ -19,6 +19,10 @@ vim.keymap.set(
     vim.api.nvim_replace_termcodes("<C-\\><C-N>", true, true, true),
     { desc = "Go to right window", remap = true }
 )
+vim.keymap.set("n", "<C-w>M", "<C-w>H", { desc = "Move current window to the far left", remap = true })
+vim.keymap.set("n", "<C-w>N", "<C-w>J", { desc = "Move current window to the bottom", remap = true })
+vim.keymap.set("n", "<C-w>E", "<C-w>K", { desc = "Move current window to the top", remap = true })
+vim.keymap.set("n", "<C-w>I", "<C-w>L", { desc = "Move current window to the far right", remap = true })
 
 vim.keymap.set("n", "<A-Left>", "<Cmd>vertical resize -2<cr>", { desc = "Decrease window width", remap = true })
 vim.keymap.set("n", "<A-Down>", "<Cmd>resize -2<cr>", { desc = "Decrease window height", remap = true })
