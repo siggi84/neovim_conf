@@ -29,6 +29,8 @@ vim.o.hlsearch = false
 
 -- Enable break indent
 vim.o.breakindent = true
+vim.opt.breakindentopt = { 'shift:2', 'sbr' }
+--vim.opt.breakat = ' \t;:,!?'
 
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.

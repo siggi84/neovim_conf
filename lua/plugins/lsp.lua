@@ -23,7 +23,7 @@ return {
         },
         config = function()
             require("mason-lspconfig").setup({
-                ensure_installed = { "pyright", "ruff_lsp" } -- not an option from mason.nvim
+                ensure_installed = { "pyright", "ruff_lsp", "dockerls", "docker_compose_language_service"} -- not an option from mason.nvim
             }
             )
             require("mason-lspconfig").setup_handlers {
@@ -35,9 +35,6 @@ return {
                 end,
                 -- Next, you can provide a dedicated handler for specific servers.
                 -- For example, a handler override for the `rust_analyzer`:
-                ["rust_analyzer"] = function()
-                    require("rust-tools").setup {}
-                end
             }
 
             -- Global mappings.
@@ -94,6 +91,7 @@ return {
                 sources = {
                     nls.builtins.formatting.black,
                     nls.builtins.diagnostics.mypy,
+                    nls.builtins.diagnostics.hadolint,
                 },
             }
         end
