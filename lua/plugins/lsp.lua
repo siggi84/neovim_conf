@@ -1,42 +1,8 @@
 return {
-    -- The plugins need to be loaded in the order: mason.nvim, mason-lspconfig.nvim, nvim-lspconfig
     {
         "neovim/nvim-lspconfig",
         event = { "BufReadPre", "BufNewFile" },
-        dependencies = {
-            "williamboman/mason.nvim",
-            "williamboman/mason-lspconfig.nvim",
-            "jose-elias-alvarez/null-ls.nvim"
-        }
-    },
-    {
-        "williamboman/mason.nvim",
-        build = ":MasonUpdate", -- :MasonUpdate updates registry contents
         config = function()
-            require("mason").setup()
-        end
-    },
-    {
-        "williamboman/mason-lspconfig.nvim",
-        dependencies = {
-            "williamboman/mason.nvim",
-        },
-        config = function()
-            require("mason-lspconfig").setup({
-                ensure_installed = { "pyright", "ruff_lsp", "dockerls", "docker_compose_language_service"} -- not an option from mason.nvim
-            }
-            )
-            require("mason-lspconfig").setup_handlers {
-                -- The first entry (without a key) will be the default handler
-                -- and will be called for each installed server that doesn't have
-                -- a dedicated handler.
-                function(server_name) -- default handler (optional)
-                    require("lspconfig")[server_name].setup {}
-                end,
-                -- Next, you can provide a dedicated handler for specific servers.
-                -- For example, a handler override for the `rust_analyzer`:
-            }
-
             -- Global mappings.
             -- See `:help vim.diagnostic.*` for documentation on any of the below functions
             vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, { desc = 'Open the diagnostic float' })
@@ -80,6 +46,40 @@ return {
                     end, { buffer = ev.buf, desc = "Format document" })
                 end,
             })
+        end,
+        dependencies = {
+            "williamboman/mason.nvim",
+            "williamboman/mason-lspconfig.nvim",
+            -- "jose-elias-alvarez/null-ls.nvim" -- Is this needed?
+        }
+    },
+    {
+        "williamboman/mason.nvim",
+        build = ":MasonUpdate", -- :MasonUpdate updates registry contents
+        config = function()
+            require("mason").setup()
+        end
+    },
+    {
+        "williamboman/mason-lspconfig.nvim",
+        dependencies = {
+            "williamboman/mason.nvim",
+        },
+        config = function()
+            require("mason-lspconfig").setup({
+                ensure_installed = { "pyright", "ruff_lsp", "dockerls", "docker_compose_language_service" } -- not an option from mason.nvim
+            }
+            )
+            require("mason-lspconfig").setup_handlers {
+                -- The first entry (without a key) will be the default handler
+                -- and will be called for each installed server that doesn't have
+                -- a dedicated handler.
+                function(server_name) -- default handler (optional)
+                    require("lspconfig")[server_name].setup {}
+                end,
+                -- Next, you can provide a dedicated handler for specific servers.
+                -- For example, a handler override for the `rust_analyzer`:
+            }
         end
     },
     {
@@ -123,17 +123,6 @@ return {
             },
             { "<tab>",   function() require("luasnip").jump(1) end,  mode = "s" },
             { "<s-tab>", function() require("luasnip").jump(-1) end, mode = { "i", "s" } },
-        },
-    },
-    {
-        "zbirenbaum/copilot.lua",
-        cmd = "Copilot",
-        build = ":Copilot auth",
-        event = "InsertEnter",
-        module = "Copilot",
-        opts = {
-            suggestion = { enable = false },
-            panel = { enable = false },
         },
     },
     {
@@ -222,22 +211,16 @@ return {
                 -- Configuration here, or leave empty to use defaults
             })
         end
+    },
+    {
+        "zbirenbaum/copilot.lua",
+        cmd = "Copilot",
+        build = ":Copilot auth",
+        event = "InsertEnter",
+        module = "Copilot",
+        opts = {
+            suggestion = { enable = false },
+            panel = { enable = false },
+        },
     }
-    -- {
-    --     "echasnovski/mini.surround",
-    --     event = "VeryLazy",
-    --     version = false,
-    --     config = function()
-    --         require("mini.surround").setup()
-    --     end
-    -- },
-    -- {
-    --     "echasnovski/mini.ai",
-    --     event = "VeryLazy",
-    --     version = false,
-    --     config = function()
-    --         require("mini.ai").setup()
-    --     end
-    -- },
-
 }
