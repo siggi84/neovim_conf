@@ -2,7 +2,7 @@ return {
     {
         "folke/flash.nvim",
         event = "VeryLazy",
-        opts = {labels = "tnseriaogmplfuwyqbjdhcxzvk"},
+        opts = { labels = "tnseriaogmplfuwyqbjdhcxzvk" },
         keys = {
             { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
             {
@@ -48,5 +48,14 @@ return {
             -- or leave it empty to use the default settings
             -- refer to the configuration section below
         }
-    }
+    },
+    {
+        'echasnovski/mini.operators',
+        version = false,
+        lazy = false,
+        config = function()
+            require('mini.operators').setup()
+        end
+
+    },
 }
