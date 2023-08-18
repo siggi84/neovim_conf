@@ -56,3 +56,6 @@ vim.wo.signcolumn = 'yes'
 -- Decrease update time
 vim.o.updatetime = 250
 vim.o.timeoutlen = 300
+
+-- Set colorcolumn for Python files
+vim.api.nvim_command('autocmd FileType python setlocal colorcolumn=89')
