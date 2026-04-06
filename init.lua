@@ -106,7 +106,7 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highl
 -- Undotree (build-in)
 vim.keymap.set("n", "<leader>su", function()
   vim.cmd("packadd nvim.undotree")
-  require("undotree").open()
+  vim.cmd.Undotree()
 end, { desc = "Open undo tree" })
 
 -- INFO: formatting and syntax highlighting
@@ -185,6 +185,16 @@ vim.pack.add({
   "https://github.com/neovim/nvim-lspconfig", -- default configs for lsps
 }, { confirm = false })
 
+local function lsp_source_action()
+  vim.lsp.buf.code_action({
+    apply = true,
+    context = {
+      only = { "source" },
+      diagnostics = vim.diagnostic.get(0),
+    },
+  })
+end
+
 -- configure each lsp server on the table
 -- to check what clients are attached to the current buffer, use
 -- `:checkhealth vim.lsp`. to view default lsp keybindings, use `:h lsp-defaults`.
@@ -194,17 +204,35 @@ for server, config in pairs(lsp_servers) do
 
     -- only create the keymaps if the server attaches successfully
     on_attach = function(_, bufnr)
-      vim.keymap.set("n", "grd", vim.lsp.buf.definition,
-        { buffer = bufnr, desc = "Go to definition", })
-
       vim.keymap.set("n", "grf", vim.lsp.buf.format,
         { buffer = bufnr, desc = "Format buffer", })
 
-      vim.keymap.set("n", "K", vim.lsp.buf.hover,
-        { buffer = bufnr, desc = "Hover", })
-
       vim.keymap.set("n", "gK", vim.lsp.buf.signature_help,
         { buffer = bufnr, desc = "Signature help", })
+
+      vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help,
+        { buffer = bufnr, desc = "Signature help", })
+
+      vim.keymap.set("n", "<leader>cl", function() Snacks.picker.lsp_config() end,
+        { buffer = bufnr, desc = "Lsp Info", })
+
+      vim.keymap.set({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action,
+        { buffer = bufnr, desc = "Code Action", })
+
+      vim.keymap.set({ "n", "x" }, "<leader>cc", vim.lsp.codelens.run,
+        { buffer = bufnr, desc = "Run Codelens", })
+
+      vim.keymap.set("n", "<leader>cC", vim.lsp.codelens.refresh,
+        { buffer = bufnr, desc = "Refresh & Display Codelens", })
+
+      vim.keymap.set("n", "<leader>cR", function() Snacks.rename.rename_file() end,
+        { buffer = bufnr, desc = "Rename File", })
+
+      vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename,
+        { buffer = bufnr, desc = "Rename", })
+
+      vim.keymap.set("n", "<leader>cA", lsp_source_action,
+        { buffer = bufnr, desc = "Source Action", })
     end,
   })
 
@@ -313,6 +341,11 @@ vim.keymap.set("n", "<leader>uL", function()
   relative_number_toggle:toggle()
 end, { desc = "Toggle relative numbers" })
 
+local inlay_hints_toggle = require("snacks.toggle").inlay_hints()
+vim.keymap.set("n", "<leader>uh", function()
+  inlay_hints_toggle:toggle()
+end, { desc = "Toggle inlay hints" })
+
 vim.keymap.set("n", "<leader>ff", function() require("snacks").picker.files() end, { desc = "Find files" })
 vim.keymap.set("n", "<leader>/", function() require("snacks").picker.grep() end, { desc = "Live grep" })
 vim.keymap.set("n", "<leader>fb", function() require("snacks").picker.buffers() end, { desc = "Find buffers" })
@@ -325,6 +358,7 @@ vim.keymap.set("n", "gd", function() require("snacks").picker.lsp_definitions() 
 vim.keymap.set("n", "gD", function() require("snacks").picker.lsp_declarations() end, { desc = "LSP declarations" })
 vim.keymap.set("n", "gr", function() require("snacks").picker.lsp_references() end, { desc = "LSP references" })
 vim.keymap.set("n", "gI", function() require("snacks").picker.lsp_implementations() end, { desc = "LSP implementations" })
+vim.keymap.set("n", "gy", function() require("snacks").picker.lsp_type_definitions() end, { desc = "LSP type definitions" })
 
 vim.keymap.set("n", "<leader>gg", ":lua Snacks.lazygit()<cr>", { desc = "Open lazygit", remap = true })
 vim.keymap.set({ "n", "t" }, "<c-t>", function() Snacks.terminal() end, { desc = "Toggle terminal" })
