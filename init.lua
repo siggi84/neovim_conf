@@ -10,7 +10,7 @@ vim.g.loaded_ruby_provider = 0
 vim.g.loaded_python_provider = 0
 
 -- New UI opt-in
--- require('vim._core.ui2').enable({})
+require('vim._core.ui2').enable({})
 
 -- enable true color support
 vim.opt.termguicolors = true
@@ -432,6 +432,10 @@ require("obsidian").setup({
           name = "snacks.pick", -- or "mini.pick"
         },
 })
+
+vim.pack.add({"https://github.com/nvim-lua/plenary.nvim"}, {confirm = false})
+vim.pack.add({"https://github.com/neogitorg/neogit"},  { confirm = false})
+require("neogit").setup({})
 
 -- INFO: colorscheme
 vim.cmd.colorscheme("nightfox")
