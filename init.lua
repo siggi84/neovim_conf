@@ -9,6 +9,9 @@ vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_python_provider = 0
 
+-- New UI opt-in
+-- require('vim._core.ui2').enable({})
+
 -- enable true color support
 vim.opt.termguicolors = true
 
@@ -16,7 +19,7 @@ vim.opt.termguicolors = true
 vim.opt.number = true
 vim.opt.relativenumber = true
 
--- Changh the active window after split
+-- Change the active window after split
 vim.opt.splitbelow = true -- horizontal splits go below
 vim.opt.splitright = true -- vertical splits go right
 
@@ -30,9 +33,9 @@ vim.opt.clipboard = "unnamedplus"
 
 -- keep signcolumn on by default
 vim.opt.signcolumn = "yes"
-vim.opt.colorcolumn = "90"
+vim.opt.colorcolumn = "89"
 vim.opt.showmatch = true -- highlight matching brackets
-vim.opt.cmdheight = 1 -- single line command line
+-- vim.opt.cmdheight = 0 -- single line command line
 
 local undodir = vim.fn.expand("~/.vim/undodir")
 if
@@ -83,7 +86,7 @@ vim.opt.breakindent = true
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
-vim.opt.textwidth = 80
+vim.opt.textwidth = 88
 vim.opt.smartindent = true
 vim.opt.autoindent = true
 
@@ -103,7 +106,7 @@ vim.diagnostic.config({
 -- clear search highlights with <Esc>
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
--- Undotree (build-in)
+-- Undotree (built-in)
 vim.keymap.set("n", "<leader>su", function()
   vim.cmd("packadd nvim.undotree")
   vim.cmd.Undotree()
@@ -114,11 +117,10 @@ vim.pack.add({
 	{
 		src = "https://github.com/nvim-treesitter/nvim-treesitter",
 		branch = "main",
-		build = ":TSUpdate",
 	},
-})
+}, { confirm = false })
 
-require("nvim-treesitter.config").setup({
+require("nvim-treesitter").setup({
   auto_install = true, -- autoinstall languages that are not installed yet
 })
 
@@ -129,8 +131,7 @@ require("nvim-treesitter.config").setup({
 vim.pack.add({
   {
     src = "https://github.com/saghen/blink.cmp",
-    branch = "v1",
-    build = "cargo build --release",
+    branch = "v1"
   },
 }, { confirm = false })
 
@@ -165,8 +166,9 @@ require("blink.cmp").setup({
   },
 })
 
--- INFO: lsp server installation and configuration
-
+vim.pack.add({
+  "https://github.com/neovim/nvim-lspconfig", -- default configs for lsps
+}, { confirm = false })
 
 -- lsp servers we want to use and their configuration
 -- see `:h lspconfig-all` for available servers and their settings
@@ -181,10 +183,9 @@ local lsp_servers = {
 }
 
 
-vim.pack.add({
-  "https://github.com/neovim/nvim-lspconfig", -- default configs for lsps
-}, { confirm = false })
-
+-- Filter code actions down to "source" actions so <leader>cA behaves like
+-- LazyVim's source-action binding. Neovim exposes code_action(), but not a
+-- separate built-in helper specifically for source actions.
 local function lsp_source_action()
   vim.lsp.buf.code_action({
     apply = true,
@@ -201,6 +202,7 @@ end
 for server, config in pairs(lsp_servers) do
   vim.lsp.config(server, {
     settings = config,
+    capabilities = require("blink.cmp").get_lsp_capabilities(),
 
     -- only create the keymaps if the server attaches successfully
     on_attach = function(_, bufnr)
@@ -242,15 +244,21 @@ end
 -- Flash.nvim
 vim.pack.add({ "https://github.com/folke/flash.nvim" }, { confirm = false })
 require("flash").setup({
-  labels = "arstgmneioqwfpbjluyzxcdvkh"
+  labels = "arstgmneioqwfpbjluyzxcdvkh",
 })
+
 vim.keymap.set({ "n", "x", "o" }, "s", function()
   require("flash").jump()
 end, { desc = "Flash" })
 
 vim.keymap.set({ "n", "x", "o" }, "S", function()
-  require("flash").treesitter()
-end, { desc = "Flash Treesitter" })
+  require("flash").treesitter({
+    actions = {
+      [";"] = "next",
+      [","] = "prev",
+    },
+  })
+end, { desc = "Treesitter incremental selection" })
 
 vim.keymap.set("o", "r", function()
   require("flash").remote()
@@ -315,8 +323,32 @@ vim.pack.add({ "https://github.com/folke/snacks.nvim" }, { confirm = false })
 require("snacks").setup({
   picker = { enabled = true, ui_select = true},
   lazygit = { enabled = true },
+  terminal = { enabled = true },
   zen = { enabled = true },
+  image = {
+    enabled = true,
+    resolve = function(file, src)
+      local api = require("obsidian.api")
+      if not api.path_is_note(file) then
+        return
+      end
+
+      local note_dir = vim.fs.dirname(file)
+      local local_path = vim.fs.normalize(note_dir .. "/" .. src)
+      if vim.fn.filereadable(local_path) == 1 then
+        return local_path
+      end
+
+      local attachment_path = api.resolve_attachment_path(src)
+      if vim.fn.filereadable(attachment_path) == 1 then
+        return attachment_path
+      end
+
+      return nil
+    end,
+  }
 })
+vim.ui.select = Snacks.picker.select
 
 
 -- Zoom mode
@@ -363,6 +395,7 @@ vim.keymap.set("n", "gy", function() require("snacks").picker.lsp_type_definitio
 vim.keymap.set("n", "<leader>gg", ":lua Snacks.lazygit()<cr>", { desc = "Open lazygit", remap = true })
 vim.keymap.set({ "n", "t" }, "<c-t>", function() Snacks.terminal() end, { desc = "Toggle terminal" })
 
+-- Nightfox theme
 vim.pack.add({ "https://github.com/EdenEast/nightfox.nvim" }, { confirm = false })
 require("nightfox").setup({
   options = {
@@ -375,6 +408,29 @@ require("nightfox").setup({
       },
     },
   },
+})
+
+-- Lualine.nvim
+vim.pack.add({
+  {
+    src = "https://github.com/nvim-lualine/lualine.nvim",
+  },
+}, { confirm = false })
+require('lualine').setup()
+
+
+vim.pack.add({"https://github.com/obsidian-nvim/obsidian.nvim"},  { confirm = false})
+require("obsidian").setup({
+      legacy_commands = false, -- this will be removed in the next major release
+      workspaces = {
+        {
+          name = "personal",
+          path = "~/Documents/DefaultVault",
+        },
+      },
+        picker = {
+          name = "snacks.pick", -- or "mini.pick"
+        },
 })
 
 -- INFO: colorscheme
@@ -406,11 +462,21 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 -- wrap, linebreak and spellcheck on markdown and text files
 vim.api.nvim_create_autocmd("FileType", {
 	group = augroup,
-	pattern = { "markdown", "text", "gitcommit" },
+	pattern = { "text", "gitcommit" },
 	callback = function()
-
 		vim.opt_local.wrap = true
+		vim.opt_local.linebreak = true
+		vim.opt_local.spell = true
+	end,
+})
 
+-- wrap, linebreak and spellcheck on markdown and text files
+vim.api.nvim_create_autocmd("FileType", {
+	group = augroup,
+	pattern = { "markdown" },
+	callback = function()
+    vim.opt_local.conceallevel = 2 -- Or 3 for complete hiding
+		vim.opt_local.wrap = true
 		vim.opt_local.linebreak = true
 		vim.opt_local.spell = true
 	end,
